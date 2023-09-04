@@ -10,12 +10,13 @@ import numpy as np
 from PIL import Image
 import time
 import logging
+import os
 
 # Initialize logging
 logging.basicConfig(level=logging.INFO)
 
-# Initialize OpenAI API key
-openai.api_key = "your_openai_key"  # Make sure to set this environment variable
+#Access the API key from Streamlit secrets
+openai_api_key = st.secrets["OPENAI_API_KEY"]
 
 # Function to parse PDF files
 def parse_pdf(file_path):
