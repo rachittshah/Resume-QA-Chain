@@ -15,7 +15,7 @@ import logging
 logging.basicConfig(level=logging.INFO)
 
 # Initialize OpenAI API key
-openai.api_key = "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"  # Make sure to set this environment variable
+openai.api_key = "your_openai_key"  # Make sure to set this environment variable
 
 # Function to parse PDF files
 def parse_pdf(file_path):
