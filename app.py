@@ -55,6 +55,11 @@ def write_pdf(pdf_path, display_method="images"):
     if display_method == "images":
         tmp_sub_folder_path = tempfile.mkdtemp()
         result = pdf2jpg.convert_pdf2jpg(pdf_path, tmp_sub_folder_path, pages="ALL")
+    print("Type of result:", type(result))
+    print("Value of result:", result)
+    if isinstance(result, bool):
+        st.error("Failed to convert PDF to JPG. Please check the PDF file.")
+        return
         images = []
         for image_path in result[0]["output_jpgfiles"]:
             images.append(np.array(Image.open(image_path)))
