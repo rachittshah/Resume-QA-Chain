@@ -18,6 +18,12 @@ logging.basicConfig(level=logging.INFO)
  # Access the API key from Streamlit secrets
 openai_api_key = os.getenv("OPENAI_API_KEY")
 
+# Initialize logging
+logging.basicConfig(level=logging.INFO)
+
+#Access the API key from Streamlit secrets
+openai_api_key = "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"
+
 # Function to parse PDF files
 def parse_pdf(file_path):
     text = ""
@@ -63,33 +69,18 @@ def analyze_with_openai(text):
     else:
         return "The uploaded document does not appear to be a resume. Please upload a resume."
 
-def write_pdf(pdf_path, display_method="images"):
-    if display_method == "images":
-        tmp_sub_folder_path = tempfile.mkdtemp()
-        result = pdf2jpg.convert_pdf2jpg(pdf_path, tmp_sub_folder_path, pages="ALL")
-        print("Type of result:", type(result))
-        print("Value of result:", result)
-        if isinstance(result, bool):
-            st.error("Failed to convert PDF to JPG. Please check the PDF file.")
-        else:
-            images = []
-            for image_path in result[0]["output_jpgfiles"]:
-                images.append(np.array(Image.open(image_path)))
-            merged_arr = np.concatenate(images)
-            merged_path = os.path.join(tmp_sub_folder_path, "merged.jpeg")
-            Image.fromarray(merged_arr).save(merged_path)
-            st.image(merged_path)
-    else:
-        with open(pdf_path, "rb") as f:
-            base64_pdf = base64.b64encode(f.read()).decode('utf-8')
-        pdf_display = f"""
-            <iframe 
-                src="data:application/pdf;base64,{base64_pdf}" 
-                width="275%" height="800px" type="application/pdf"
-            >
-            </iframe>
-        """
-        st.markdown(pdf_display, unsafe_allow_html=True)
+
+def write_pdf(pdf_path):
+    with open(pdf_path, "rb") as f:
+        base64_pdf = base64.b64encode(f.read()).decode('utf-8')
+    pdf_display = f"""
+        <iframe 
+            src="data:application/pdf;base64,{base64_pdf}" 
+            width="100%" height="800px" type="application/pdf"
+        >
+        </iframe>
+    """
+    st.markdown(pdf_display, unsafe_allow_html=True)
 
 # Custom CSS to make the webpage width wider
 def custom_css():
