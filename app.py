@@ -1,4 +1,4 @@
-import streamlit as st
+\import streamlit as st
 import pdfplumber
 from docx import Document
 import openai
@@ -15,8 +15,8 @@ import os
 # Initialize logging
 logging.basicConfig(level=logging.INFO)
 
-#Access the API key from Streamlit secrets
-openai_api_key = st.secrets["openai_api_key"]
+ # Access the API key from Streamlit secrets
+openai_api_key = os.getenv("OPENAI_API_KEY")
 
 # Function to parse PDF files
 def parse_pdf(file_path):
@@ -156,6 +156,5 @@ if uploaded_file:
             write_pdf(tfile.name)
         else:
             st.write(extracted_text)
-
 
 
