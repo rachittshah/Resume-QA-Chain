@@ -76,7 +76,7 @@ def write_pdf(pdf_path):
     pdf_display = f"""
         <iframe 
             src="data:application/pdf;base64,{base64_pdf}" 
-            width="100%" height="800px" type="application/pdf"
+            width="300%" height="800px" type="application/pdf"
         >
         </iframe>
     """
