@@ -63,22 +63,22 @@ def analyze_with_openai(text):
     else:
         return "The uploaded document does not appear to be a resume. Please upload a resume."
 
-# Function to render PDF
 def write_pdf(pdf_path, display_method="images"):
     if display_method == "images":
         tmp_sub_folder_path = tempfile.mkdtemp()
         result = pdf2jpg.convert_pdf2jpg(pdf_path, tmp_sub_folder_path, pages="ALL")
-    print("Type of result:", type(result))
-    print("Value of result:", result)
-    if isinstance(result, bool):
-        st.error("Failed to convert PDF to JPG. Please check the PDF file.")
-        images = []
-        for image_path in result[0]["output_jpgfiles"]:
-            images.append(np.array(Image.open(image_path)))
-        merged_arr = np.concatenate(images)
-        merged_path = os.path.join(tmp_sub_folder_path, "merged.jpeg")
-        Image.fromarray(merged_arr).save(merged_path)
-        st.image(merged_path)
+        print("Type of result:", type(result))
+        print("Value of result:", result)
+        if isinstance(result, bool):
+            st.error("Failed to convert PDF to JPG. Please check the PDF file.")
+        else:
+            images = []
+            for image_path in result[0]["output_jpgfiles"]:
+                images.append(np.array(Image.open(image_path)))
+            merged_arr = np.concatenate(images)
+            merged_path = os.path.join(tmp_sub_folder_path, "merged.jpeg")
+            Image.fromarray(merged_arr).save(merged_path)
+            st.image(merged_path)
     else:
         with open(pdf_path, "rb") as f:
             base64_pdf = base64.b64encode(f.read()).decode('utf-8')
