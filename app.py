@@ -72,7 +72,6 @@ def write_pdf(pdf_path, display_method="images"):
     print("Value of result:", result)
     if isinstance(result, bool):
         st.error("Failed to convert PDF to JPG. Please check the PDF file.")
-        return
         images = []
         for image_path in result[0]["output_jpgfiles"]:
             images.append(np.array(Image.open(image_path)))
