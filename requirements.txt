@@ -11,6 +11,7 @@ charset-normalizer==3.2.0
 click==8.1.7
 cryptography==41.0.3
 deprecation==2.1.0
+docx==0.2.4
 frozenlist==1.4.0
 gitdb==4.0.10
 GitPython==3.1.33
