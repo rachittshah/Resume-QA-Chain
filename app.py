@@ -16,7 +16,7 @@ import os
 logging.basicConfig(level=logging.INFO)
 
 #Access the API key from Streamlit secrets
-openai_api_key = st.secrets["OPENAI_API_KEY"]
+openai_api_key = st.secrets["openai_api_key"]
 
 # Function to parse PDF files
 def parse_pdf(file_path):
@@ -40,15 +40,28 @@ def analyze_with_openai(text):
     messages = [
     {
         "role": "system",
-        "content": "You are an advanced resume reviewer specialized in identifying and evaluating both technical and interpersonal skills. Your expertise enables you to formulate incisive questions that hiring managers can use to gain a deeper understanding of a candidate's qualifications and character."
+        "content": "You are an advanced document analyzer. Your task is to determine if the provided text is a resume or not. If it's a resume, return only resume."
     },
     {
         "role": "user",
-        "content": f"Based on the resume information provided, please structure the key points in bullet format and formulate a set of 10 questions designed to evaluate the candidate's technical skills, interpersonal abilities, and overall fit for a prospective role. Here is the resume content: {text}"
+        "content": text
     }]
 
     response = openai.ChatCompletion.create(model=model, messages=messages)
-    return response['choices'][0]['message']['content']
+    print(response)
+    if 'resume' in response['choices'][0]['message']['content'].lower():
+        messages.append({
+            "role": "system",
+            "content": "You are an advanced resume reviewer specialized in identifying and evaluating both technical and interpersonal skills. Your expertise enables you to formulate incisive questions that hiring managers can use to gain a deeper understanding of a candidate's qualifications and character."
+        })
+        messages.append({
+            "role": "user",
+            "content": f"Based on the resume information provided, please structure the key points in bullet format and formulate a set of 10 questions designed to evaluate the candidate's technical skills, interpersonal abilities, and overall fit for a prospective role. Here is the resume content: {text}"
+        })
+        response = openai.ChatCompletion.create(model=model, messages=messages)
+        return response['choices'][0]['message']['content']
+    else:
+        return "The uploaded document does not appear to be a resume. Please upload a resume."
 
 # Function to render PDF
 def write_pdf(pdf_path, display_method="images"):
@@ -72,12 +85,24 @@ def write_pdf(pdf_path, display_method="images"):
             base64_pdf = base64.b64encode(f.read()).decode('utf-8')
         pdf_display = f"""
             <iframe 
-                src="data:application/pdf;base64,{base64_pdf}#toolbar=0&navpanes=0&scrollbar=0" 
-                width="100%" height="300px" type="application/pdf"
+                src="data:application/pdf;base64,{base64_pdf}" 
+                width="275%" height="800px" type="application/pdf"
             >
             </iframe>
         """
         st.markdown(pdf_display, unsafe_allow_html=True)
+
+# Custom CSS to make the webpage width wider
+def custom_css():
+    st.markdown("""
+        <style>
+            .reportview-container {
+                max-width: 100%;
+            }
+        </style>
+    """, unsafe_allow_html=True)
+
+custom_css()
 
 # Main Streamlit app
 st.title("Resume Analyzer")
@@ -87,7 +112,7 @@ progress_bar = st.progress(0)
 status_text = st.empty()
 
 # File Uploader
-uploaded_file = st.file_uploader("Upload a PDF or DOCX file", type=["pdf", "docx"])
+uploaded_file = st.file_uploader("Upload a PDF or DOCX file", type=["pdf", "docx"], key="unique_key")
 
 if uploaded_file:
     st.success("File successfully uploaded.")
@@ -112,20 +137,25 @@ if uploaded_file:
     status_text.text("Analysis complete.")
     progress_bar.progress(100)
 
-    col1, col2 = st.columns(2)
+    col1, col2 = st.columns([1,2])  # This creates two columns with col2 twice as wide as col1
+        
+    col1, col2 = st.columns([2,1])  # This creates two columns with col1 twice as wide as col2
     
     with col1:
         st.header("Resume Analysis")
         st.write(result)
-        
+            
         # Download analysis result
         b64 = base64.b64encode(result.encode()).decode()
         href = f'<a href="data:text/plain;base64,{b64}" download="analysis.txt">Download Analysis</a>'
         st.markdown(href, unsafe_allow_html=True)
-        
+            
     with col2:
         st.header("Your Resume")
         if uploaded_file.type == "application/pdf":
             write_pdf(tfile.name)
         else:
             st.write(extracted_text)
+
+
+
